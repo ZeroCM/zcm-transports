@@ -21,8 +21,8 @@ static uint32_t uartGet(uint8_t* data, uint32_t nData, void* usr)
 {
     uint32_t uart_base = (uint32_t) usr;
     uint32_t ret = 0;
-    while (ret < nData && UARTCharsAvail(uart_base) &&
-           (data[ret] = UARTCharGet(uart_base))) ret++;
+    while (ret < nData && UARTCharsAvail(uart_base))
+        data[ret++] = UARTCharGet(uart_base);
     return ret;
 }
 
@@ -65,6 +65,8 @@ zcm_trans_t* __zcm_trans_tiva_uart_create(uint32_t port_base,
 
     UARTConfigSetExpClk(uart_base, SysCtlClockGet(), uart_validate_baud(baud),
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE));
+
+    UARTFIFOEnable(uart_base);
 
 	UARTEnable(uart_base);
 
