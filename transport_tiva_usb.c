@@ -22,9 +22,6 @@
 #include "driverlib/gpio.h"
 #include "driverlib/interrupt.h"
 
-#include "eeprom.h"
-#include "time_util.h"
-
 uint32_t usbPut(const uint8_t* data, uint32_t nData, void* usr)
 {
     return USBBufferWrite((tUSBBuffer *)&g_sTxBuffer, data, nData);
@@ -39,7 +36,7 @@ uint32_t usbGet(uint8_t* data, uint32_t nData, void* usr)
 /*********************** TIVA USB FUNTIONS & INTERRUPTS ************************/
 
 // This should only be called once
-zcm_trans_t* zcm_trans_tiva_usb_create()
+zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num)
 {
     //
     // Configure the required pins for USB operation.
@@ -48,13 +45,11 @@ zcm_trans_t* zcm_trans_tiva_usb_create()
 	GPIOPinTypeUSBAnalog(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_4);
 
 	// Read usb serial number out of eeprom
-	uint64_t serial_num =   ((uint64_t)eeprom_read_word(EEPROM_USB_SN_UPPER_ADDR)) << 32
-	                      | ((uint64_t)eeprom_read_word(EEPROM_USB_SN_LOWER_ADDR));
 	g_pui8SerialNumberString[0] = 2 + (8 * 2); // Size byte
 	g_pui8SerialNumberString[1] = USB_DTYPE_STRING;
 	uint8_t i;
-	for (i=0; i<8; ++i) {
-	    g_pui8SerialNumberString[2*i + 2] = (serial_num >> (8*(7-i))) & 0x00000000000000FF;
+	for (i = 0; i < 8; ++i) {
+	    g_pui8SerialNumberString[2*i + 2] = (serial_num >> (8*(7-i))) & 0xFF;
 	    g_pui8SerialNumberString[2*i + 3] = 0;
 	}
 
