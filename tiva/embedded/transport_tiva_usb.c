@@ -36,7 +36,9 @@ uint32_t usbGet(uint8_t* data, uint32_t nData, void* usr)
 /*********************** TIVA USB FUNTIONS & INTERRUPTS ************************/
 
 // This should only be called once
-zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num)
+zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num,
+                                       uint64_t (*timestamp_now)(void* usr),
+                                       void* usr)
 {
     //
     // Configure the required pins for USB operation.
@@ -44,12 +46,11 @@ zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num)
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
 	GPIOPinTypeUSBAnalog(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_4);
 
-	// Read usb serial number out of eeprom
 	g_pui8SerialNumberString[0] = 2 + (8 * 2); // Size byte
 	g_pui8SerialNumberString[1] = USB_DTYPE_STRING;
 	uint8_t i;
-	for (i = 0; i < 8; ++i) {
-	    g_pui8SerialNumberString[2*i + 2] = (serial_num >> (8*(7-i))) & 0xFF;
+	for (i=0; i<8; ++i) {
+	    g_pui8SerialNumberString[2*i + 2] = (serial_num >> (8*(7-i))) & 0xff;
 	    g_pui8SerialNumberString[2*i + 3] = 0;
 	}
 
@@ -70,7 +71,7 @@ zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num)
     //
     USBDCDCInit(0, &g_sCDCDevice);
 
-    return zcm_trans_generic_serial_create(usbGet, usbPut, NULL);
+    return zcm_trans_generic_serial_create(usbGet, usbPut, NULL, timestamp_now, usr);
 }
 
 //*****************************************************************************

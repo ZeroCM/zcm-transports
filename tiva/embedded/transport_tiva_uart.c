@@ -44,24 +44,30 @@ static uint32_t uart_validate_baud(uint32_t target_baud)
     return baud;
 }
 
-zcm_trans_t* __zcm_trans_tiva_uart_create(uint32_t port_base,
-                                          uint32_t uart_base,
-                                          uint32_t sysctl_port_base,
+zcm_trans_t* __zcm_trans_tiva_uart_create(uint32_t uart_base,
                                           uint32_t sysctl_uart_base,
+                                          uint32_t rx_port_base,
+                                          uint32_t sysctl_rx_port_base,
                                           uint32_t pinmap_rx,
-                                          uint32_t pinmap_tx,
                                           uint32_t pinnum_rx,
+                                          uint32_t tx_port_base,
+                                          uint32_t sysctl_tx_port_base,
+                                          uint32_t pinmap_tx,
                                           uint32_t pinnum_tx,
-                                          uint32_t baud)
+                                          uint32_t baud,
+                                          uint64_t (*timestamp_now)(void*),
+                                          void*    usr)
 {
-	SysCtlPeripheralEnable(sysctl_port_base);
+	SysCtlPeripheralEnable(sysctl_rx_port_base);
+	SysCtlPeripheralEnable(sysctl_tx_port_base);
 	SysCtlPeripheralEnable(sysctl_uart_base);
 
 	GPIOPinConfigure(pinmap_rx);
 	GPIOPinConfigure(pinmap_tx);
 
-	GPIOPinTypeUART(port_base, pinnum_rx | pinnum_tx);
-    GPIOPadConfigSet(port_base, pinnum_rx, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+	GPIOPinTypeUART(rx_port_base, pinnum_rx);
+	GPIOPinTypeUART(tx_port_base, pinnum_tx);
+    GPIOPadConfigSet(rx_port_base, pinnum_rx, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 
     UARTConfigSetExpClk(uart_base, SysCtlClockGet(), uart_validate_baud(baud),
                         (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE | UART_CONFIG_PAR_NONE));
@@ -72,6 +78,7 @@ zcm_trans_t* __zcm_trans_tiva_uart_create(uint32_t port_base,
 
 	while (UARTCharsAvail(uart_base)) UARTCharGetNonBlocking(uart_base);
 
+	// This is sort of a gross hack to not have to allocate memory for the put and get usr pointer
     assert(sizeof(void*) >= sizeof(uint32_t));
-    return zcm_trans_generic_serial_create(uartGet, uartPut, (void*) uart_base);
+    return zcm_trans_generic_serial_create(uartGet, uartPut, (void*)uart_base, timestamp_now, usr);
 }

@@ -8,7 +8,11 @@ extern "C" {
 #include "zcm/zcm.h"
 #include "zcm/transport.h"
 
-zcm_trans_t *zcm_trans_tiva_usb_create();
+#include "stdint.h"
+
+zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num,
+                                       uint64_t (*timestamp_now)(void* usr),
+                                       void* usr);
 
 #ifdef __cplusplus
 }
