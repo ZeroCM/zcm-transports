@@ -22,6 +22,15 @@
 #include "driverlib/gpio.h"
 #include "driverlib/interrupt.h"
 
+#ifndef ZCM_GENERIC_SERIAL_MTU
+#define ZCM_GENERIC_SERIAL_MTU 128
+#endif
+
+#ifndef ZCM_GENERIC_SERIAL_BUFFER_SIZE
+#define ZCM_GENERIC_SERIAL_BUFFER_SIZE 5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN
+#endif
+
+
 uint32_t usbPut(const uint8_t* data, uint32_t nData, void* usr)
 {
     return USBBufferWrite((tUSBBuffer *)&g_sTxBuffer, data, nData);
@@ -71,7 +80,10 @@ zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num,
     //
     USBDCDCInit(0, &g_sCDCDevice);
 
-    return zcm_trans_generic_serial_create(usbGet, usbPut, NULL, timestamp_now, usr);
+    return zcm_trans_generic_serial_create(usbGet, usbPut, NULL,
+                                           timestamp_now, usr,
+                                           ZCM_GENERIC_SERIAL_MTU,
+                                           ZCM_GENERIC_SERIAL_BUFFER_SIZE);
 }
 
 //*****************************************************************************

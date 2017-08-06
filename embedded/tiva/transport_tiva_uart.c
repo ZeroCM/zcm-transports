@@ -9,6 +9,15 @@
 #include "driverlib/gpio.h"
 #include "driverlib/uart.h"
 
+#ifndef ZCM_GENERIC_SERIAL_MTU
+#define ZCM_GENERIC_SERIAL_MTU 128
+#endif
+
+#ifndef ZCM_GENERIC_SERIAL_BUFFER_SIZE
+#define ZCM_GENERIC_SERIAL_BUFFER_SIZE 5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN
+#endif
+
+
 static uint32_t uartPut(const uint8_t* data, uint32_t nData, void* usr)
 {
     uint32_t uart_base = (uint32_t) usr;
@@ -80,5 +89,8 @@ zcm_trans_t* __zcm_trans_tiva_uart_create(uint32_t uart_base,
 
 	// This is sort of a gross hack to not have to allocate memory for the put and get usr pointer
     assert(sizeof(void*) >= sizeof(uint32_t));
-    return zcm_trans_generic_serial_create(uartGet, uartPut, (void*)uart_base, timestamp_now, usr);
+    return zcm_trans_generic_serial_create(uartGet, uartPut, (void*)uart_base,
+                                           timestamp_now, usr,
+                                           ZCM_GENERIC_SERIAL_MTU,
+                                           ZCM_GENERIC_SERIAL_BUFFER_SIZE);
 }
