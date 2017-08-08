@@ -23,20 +23,20 @@
 #include "driverlib/interrupt.h"
 
 #ifndef ZCM_GENERIC_SERIAL_MTU
-#define ZCM_GENERIC_SERIAL_MTU 128
+#define ZCM_GENERIC_SERIAL_MTU (128)
 #endif
 
 #ifndef ZCM_GENERIC_SERIAL_BUFFER_SIZE
-#define ZCM_GENERIC_SERIAL_BUFFER_SIZE 5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN
+#define ZCM_GENERIC_SERIAL_BUFFER_SIZE (5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN)
 #endif
 
 
-uint32_t usbPut(const uint8_t* data, uint32_t nData, void* usr)
+size_t usbPut(const uint8_t* data, size_t nData, void* usr)
 {
     return USBBufferWrite((tUSBBuffer *)&g_sTxBuffer, data, nData);
 }
 
-uint32_t usbGet(uint8_t* data, uint32_t nData, void* usr)
+size_t usbGet(uint8_t* data, size_t nData, void* usr)
 {
     return USBBufferRead((tUSBBuffer *)&g_sRxBuffer, data, nData);
 }
