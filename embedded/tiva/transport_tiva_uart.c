@@ -9,13 +9,8 @@
 #include "driverlib/gpio.h"
 #include "driverlib/uart.h"
 
-#ifndef ZCM_GENERIC_SERIAL_MTU
-#define ZCM_GENERIC_SERIAL_MTU 128
-#endif
-
-#ifndef ZCM_GENERIC_SERIAL_BUFFER_SIZE
-#define ZCM_GENERIC_SERIAL_BUFFER_SIZE 5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN
-#endif
+#define ZCM_GENERIC_SERIAL_MTU (128)
+#define ZCM_GENERIC_SERIAL_BUFFER_SIZE (5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN)
 
 
 static size_t uartPut(const uint8_t* data, size_t nData, void* usr)
