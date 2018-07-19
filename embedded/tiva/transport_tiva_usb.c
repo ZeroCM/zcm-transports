@@ -23,7 +23,9 @@
 #include "driverlib/interrupt.h"
 
 #define ZCM_GENERIC_SERIAL_MTU (128)
-#define ZCM_GENERIC_SERIAL_BUFFER_SIZE (5*ZCM_GENERIC_SERIAL_MTU+5*ZCM_CHANNEL_MAXLEN)
+#define ZCM_GENERIC_SERIAL_NMSGS (5)
+#define ZCM_GENERIC_SERIAL_BUFFER_SIZE ((ZCM_GENERIC_SERIAL_NMSGS * ZCM_GENERIC_SERIAL_MTU) + \
+                                        (ZCM_GENERIC_SERIAL_NMSGS * ZCM_CHANNEL_MAXLEN))
 
 
 size_t usbPut(const uint8_t* data, size_t nData, void* usr)
