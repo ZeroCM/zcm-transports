@@ -14,6 +14,8 @@ zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num,
                                        uint64_t (*timestamp_now)(void* usr),
                                        void* usr);
 
+void zcm_trans_tiva_usb_device_destroy();
+
 #ifdef __cplusplus
 }
 #endif

@@ -27,6 +27,7 @@
 #define ZCM_GENERIC_SERIAL_BUFFER_SIZE ((ZCM_GENERIC_SERIAL_NMSGS * ZCM_GENERIC_SERIAL_MTU) + \
                                         (ZCM_GENERIC_SERIAL_NMSGS * ZCM_CHANNEL_MAXLEN))
 
+static void* usbCdcDevice = NULL;
 
 size_t usbPut(const uint8_t* data, size_t nData, void* usr)
 {
@@ -75,12 +76,21 @@ zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num,
     // Pass our device information to the USB library and place the device
     // on the bus.
     //
-    USBDCDCInit(0, &g_sCDCDevice);
+    usbCdcDevice = USBDCDCInit(0, &g_sCDCDevice);
+    if (usbCdcDevice == NULL) return NULL;
 
     return zcm_trans_generic_serial_create(usbGet, usbPut, NULL,
                                            timestamp_now, usr,
                                            ZCM_GENERIC_SERIAL_MTU,
                                            ZCM_GENERIC_SERIAL_BUFFER_SIZE);
+}
+
+void zcm_trans_tiva_usb_device_destroy()
+{
+    if (usbCdcDevice != NULL) {
+        USBDCDCTerm(usbCdcDevice);
+        usbCdcDevice = NULL;
+    }
 }
 
 //*****************************************************************************
