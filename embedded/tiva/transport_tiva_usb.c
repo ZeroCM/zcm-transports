@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "inc/hw_memmap.h"
 #include "inc/hw_ints.h"
@@ -50,15 +51,18 @@ zcm_trans_t* zcm_trans_tiva_usb_create(uint64_t serial_num,
     // Configure the required pins for USB operation.
     //
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
-	GPIOPinTypeUSBAnalog(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_4);
+    GPIOPinTypeUSBAnalog(GPIO_PORTD_BASE, GPIO_PIN_5 | GPIO_PIN_4);
 
-	g_pui8SerialNumberString[0] = 2 + (8 * 2); // Size byte
-	g_pui8SerialNumberString[1] = USB_DTYPE_STRING;
-	uint8_t i;
-	for (i=0; i<8; ++i) {
-	    g_pui8SerialNumberString[2*i + 2] = (serial_num >> (8*(7-i))) & 0xff;
-	    g_pui8SerialNumberString[2*i + 3] = 0;
-	}
+    char printBuf[17];
+    snprintf(printBuf, 17, "%016" PRIx64, serial_num);
+
+    g_pui8SerialNumberString[0] = 2 + (16 * 2); // Size byte
+    g_pui8SerialNumberString[1] = USB_DTYPE_STRING;
+    uint8_t i;
+    for (i=0; i<16; ++i) {
+        g_pui8SerialNumberString[2*i + 2] = printBuf[i];
+        g_pui8SerialNumberString[2*i + 3] = 0;
+    }
 
     //
     // Initialize the transmit and receive buffers.
