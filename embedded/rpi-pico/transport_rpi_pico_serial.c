@@ -46,8 +46,12 @@ static size_t uartGet(uint8_t* data, size_t nData, void* usr) {
 zcm_trans_t* zcm_trans_rpi_pico_serial_create(bool useUsbSerial, uint32_t baud,
                                               uint64_t (*timestamp_now)(void*),
                                               void* usr) {
+    // RRR (Bendes): this is gross. The whole point of the put/get void* is
+    // for you to pass in context if needed. You shouldn't need this at all
+    // either way
     useUartHardware = !useUsbSerial;
 
+    // RRR (Bendes): Get rid of all these switches. Make 2 transports
     if (useUartHardware) {
         // Set up our UART with the required speed.
         uart_init(UART_ID, baud);
